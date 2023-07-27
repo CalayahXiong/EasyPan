@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration scan="true" scanPeriod="10 minutes">
+
+    <include resource="org/springframework/boot/logging/logback/defaults.xml" />
+
+
+    <appender name="stdot" class="ch.qos.logback.core.ConsoleAppender">
+        <!-- <layout class="ch.qos.logback.classic.PatternLayout">
+             <pattern>%d{yyyy-MM-dd HH:mm:ss,GMT+8} [%p][%-40.40logger{39}][%M][%L]-> %m%n</pattern>
+         </layout>-->
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <!-- %d 是时间、
+                 %p 是日志级别 %5p指定日志级别最小宽度为5且右对齐(不足时左补空)、
+                 ${PID:- } 的意思是从上下文里面去取进程id,如果能取到的就取，娶不到的话，就是后面的空字符串、
+                 %t 是线程名称, %5.10t 的意思是最小占5位最多占10位且默认情况下会右对齐（如果需要左对齐，应该写%-5.10t），但一般写%10.10t对的比较整齐一点,如果超过了最大长度，左边会被截掉。对齐的含义只会出现在当前的内容长度不够最小位数的情况
+                 %m是打印的日志内容
+                 %n是换行
+
+                 %logger 输出日志的logger名，%logger{36} 表示logger名字最长36个字符，否则按照句点分割，%logger{0} 设置为0表示只输入logger最右边，。
+                 %line
+
+                 %clr是 ColorConverter 中实现的(如果需要修改，那么需要继承ColorConverter修改里面里面的实现即可)，可以写的颜色有faint、red、green、yellow、blue、magenta、cyan
+                 -->
+            <pattern>%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(%5p) %clr(${PID:-取不到}){magenta} %clr(---){faint} %clr([%5.10t]){yellow} [%logger{0}:%line] %m%n</pattern>
+        </encoder>
+    </appender>
+
+    <springProperty scope="context" name="log.path" source="project.folder"/>
+    <springProperty scope="context" name="log.root.level" source="log.root.level"/>
+
+    <property name="LOG_FOLDER" value="logs"/>
+    <property name="LOG_FILE_NAME" value="easypan.log"/>
+
+    <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${log.path}/${LOG_FOLDER}/${LOG_FILE_NAME}</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <FileNamePattern>${log.path}/${LOG_FOLDER}/${LOG_FILE_NAME}.%d{yyyyMMdd}.%i</FileNamePattern>
+            <cleanHistoryOnStart>true</cleanHistoryOnStart>
+            <TimeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <MaxFileSize>20MB</MaxFileSize>
+            </TimeBasedFileNamingAndTriggeringPolicy>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <charset>utf-8</charset>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss,GMT+8} [%p][%c][%M][%L]-> %m%n</pattern>
+        </encoder>
+        <append>false</append>
+        <prudent>false</prudent>
+    </appender>
+
+    <logger name="com.easypan.mappers" level="debug" additivity="false">
+        <appender-ref ref="stdot"/>
+    </logger>
+
+    <root level="${log.root.level}">
+        <appender-ref ref="stdot"/>
+        <appender-ref ref="file"/>
+    </root>
+
+</configuration>
+
